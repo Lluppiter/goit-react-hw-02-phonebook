@@ -1,57 +1,72 @@
 import { Component } from 'react';
-import { Statistics } from '../components/Statistics/Statistics.jsx';
-import { FeedBackOptions } from './Feedback/FeedBackOptions.jsx';
-import { Section } from './Section/Section.jsx';
-import { NotificationMessage } from './NotificationMessage/NotificationMessage.jsx';
+import { nanoid } from 'nanoid';
+import { Section } from './Section/Section';
+import { FormAddContact } from './FormAddContact/FormAddContact';
+import { ListContacts } from './ListContacts/ListContacts';
+import { Input } from './FilterContacts/Filter';
 
 export class App extends Component {
   state = {
-    good: 0,
-    neutral: 0,
-    bad: 0,
+    contacts: [
+      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+    ],
+    filter: '',
+  };
+  handleInput = ({ target: { name, value } }) => {
+    this.setState({ [name]: value });
   };
 
-  countTotalFeedback = () => {
-    this.setState(prevState => {
-      return {
-        total: prevState.good + prevState.neutral + prevState.bad,
-      };
-    });
+  addNewContact = data => {
+    const newContact = {
+      name: data.name,
+      number: data.number,
+      id: nanoid(),
+    };
+    const overlap = this.state.contacts.filter(
+      contact =>
+        contact.name.toLowerCase() === newContact.name.toLowerCase() &&
+        contact.number.toLowerCase() === newContact.number.toLowerCase()
+    );
+    overlap.length === 0
+      ? this.setState(prevState => ({
+          contacts: [...prevState.contacts, newContact],
+        }))
+      : alert('This contact has been added');
   };
-  countPositiveFeedbackPercentage = () => {
-    this.setState(prevState => {
-      return {
-        percentage: Math.round((prevState.good / prevState.total) * 100),
-      };
-    });
+
+  deleteContact = e => {
+    this.setState(prevState => ({
+      contacts: prevState.contacts.filter(
+        contact => contact.id !== e.target.value
+      ),
+    }));
   };
-  handleIncrement = e => {
-    this.setState(prevState => {
-      const { name } = e.target;
-      return {
-        [name]: prevState[name] + 1,
-      };
-    });
-    this.countTotalFeedback();
-    this.countPositiveFeedbackPercentage();
+
+  onSubmit = e => {
+    e.preventDefault();
+    this.addNewContact(this.state);
+    e.target.reset();
   };
 
   render() {
-    const { good, neutral, bad } = this.state;
     return (
       <>
-        <Section title="Please leave feedback">
-          <FeedBackOptions
-            options={Object.keys(this.state)}
-            onLeaveFeedback={this.handleIncrement}
+        <Section title="Phonebook">
+          <FormAddContact
+            onSubmit={this.onSubmit}
+            handleInput={this.handleInput}
           />
         </Section>
-        <Section title="Statistics">
-          {good !== 0 || neutral !== 0 || bad !== 0 ? (
-            <Statistics props={this.state} />
-          ) : (
-            <NotificationMessage />
-          )}
+        <Section title="Contacts">
+          <Input handleInput={this.handleInput} />
+          <ListContacts
+            contacts={this.state.contacts}
+            filter={this.state.filter}
+            userDelete={this.deleteContact}
+          />
         </Section>
       </>
     );
