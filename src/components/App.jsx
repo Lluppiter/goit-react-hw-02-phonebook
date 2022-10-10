@@ -15,14 +15,15 @@ export class App extends Component {
     ],
     filter: '',
   };
+
   handleInput = ({ target: { name, value } }) => {
     this.setState({ [name]: value });
   };
 
-  addNewContact = data => {
+  addNewContact = (name, number) => {
     const newContact = {
-      name: data.name,
-      number: data.number,
+      name: name,
+      number: number,
       id: nanoid(),
     };
     const overlap = this.state.contacts.filter(
@@ -45,18 +46,12 @@ export class App extends Component {
     }));
   };
 
-  onSubmit = e => {
-    e.preventDefault();
-    this.addNewContact(this.state);
-    e.target.reset();
-  };
-
   render() {
     return (
       <>
         <Section title="Phonebook">
           <FormAddContact
-            onSubmit={this.onSubmit}
+            addNewContact={this.addNewContact}
             handleInput={this.handleInput}
           />
         </Section>
