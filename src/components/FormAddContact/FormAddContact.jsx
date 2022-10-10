@@ -22,7 +22,7 @@ export class FormAddContact extends Component {
   }
   onSubmit = e => {
     e.preventDefault();
-    this.props.addNewContact(e.target.name.value, e.target.number.value);
+    this.props.addNewContact(this.state.name, this.state.number);
     this.reset();
   };
 
